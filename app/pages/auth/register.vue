@@ -37,6 +37,11 @@
           <small class="hint">Password harus mengandung huruf besar, angka, dan karakter spesial (@$!%*?&#)</small>
         </div>
 
+        <div class="form-group">
+          <label for="password_confirmation">Confirm Password</label>
+          <input id="password_confirmation" v-model="formData.password_confirmation" type="password" placeholder="Confirm your password" required />
+        </div>
+
         <button type="submit" :disabled="authStore.loading" class="btn-submit">
           {{ authStore.loading ? 'Loading...' : 'Register' }}
         </button>
@@ -60,6 +65,7 @@ const formData = ref({
   name: '',
   email: '',
   password: '',
+  password_confirmation: '',
 })
 
 const validationErrors = ref(null)
