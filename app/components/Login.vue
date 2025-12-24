@@ -55,6 +55,11 @@ import { useAuthStore } from '~/stores/auth'
 
 const authStore = useAuthStore()
 
+onMounted(() => {
+    authStore.clearErrors()
+    authStore.clearSuccess()
+})
+
 const form = reactive({
     email: '',
     password: ''
