@@ -1,3 +1,4 @@
 <template>
-  <ComingSoon />
+  <Navbar />
+  <PopularQoutes />
 </template>
