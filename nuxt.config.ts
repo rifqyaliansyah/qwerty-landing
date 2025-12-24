@@ -5,16 +5,19 @@ export default defineNuxtConfig({
   
   modules: [],
 
-  css: ['papercss/dist/paper.min.css'],
+  css: [
+    'papercss/dist/paper.min.css',
+    // 'papercss/dist/paper.css',
+  ],
 
   runtimeConfig: {
     // Private keys (server-side only)
     // apiSecret: '',
 
     // Public keys (exposed to client)
-    public: {
-      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL
-    }
+    // public: {
+    //   apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL
+    // }
   },
   devServer: {
     host: '0.0.0.0',
@@ -22,25 +25,25 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      title: 'My App',
+      title: 'Kata-Ku',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' }
       ],
       link: [
         // Download early (non-blocking)
-        { rel: "preload", as: "style", href: "/css/plugins.css" },
-        { rel: "preload", as: "style", href: "/css/style.css" },
-        { rel: "preload", as: "style", href: "/css/navy.css" },
+        // { rel: "preload", as: "style", href: "/css/plugins.css" },
+        // { rel: "preload", as: "style", href: "/css/style.css" },
+        // { rel: "preload", as: "style", href: "/css/navy.css" },
 
         // Apply CSS (uses preload cache, minimal blocking)
-        { rel: "stylesheet", href: "/css/plugins.css" },
-        { rel: "stylesheet", href: '/css/style.css' },
-        { rel: "stylesheet", href: '/css/navy.css' },
+        // { rel: "stylesheet", href: "/css/plugins.css" },
+        // { rel: "stylesheet", href: '/css/style.css' },
+        // { rel: "stylesheet", href: '/css/navy.css' },
       ],
       script: [
-        { src: '/js/plugins.js', tagPosition: "bodyClose" },
-        { src: '/js/theme.js', tagPosition: "bodyClose" },
+        // { src: '/js/plugins.js', tagPosition: "bodyClose" },
+        // { src: '/js/theme.js', tagPosition: "bodyClose" },
       ]
     }
   },
