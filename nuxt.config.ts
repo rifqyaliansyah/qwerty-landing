@@ -5,6 +5,8 @@ export default defineNuxtConfig({
   
   modules: [],
 
+  css: ['papercss/dist/paper.min.css'],
+
   runtimeConfig: {
     // Private keys (server-side only)
     // apiSecret: '',
