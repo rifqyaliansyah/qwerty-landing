@@ -3,7 +3,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   
-  modules: [],
+  modules: ['@pinia/nuxt'],
 
   css: [
     'papercss/dist/paper.min.css',
@@ -15,9 +15,9 @@ export default defineNuxtConfig({
     // apiSecret: '',
 
     // Public keys (exposed to client)
-    // public: {
-    //   apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL
-    // }
+    public: {
+      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL
+    }
   },
   devServer: {
     host: '0.0.0.0',
