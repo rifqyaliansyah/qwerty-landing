@@ -13,6 +13,47 @@ export const useAuthStore = defineStore('auth', () => {
 
     const isLoggedIn = computed(() => !!token.value)
 
+    // Load dari localStorage saat store di-init
+    const loadFromStorage = () => {
+        if (import.meta.client) {
+            const savedToken = localStorage.getItem('auth_token')
+            const savedUser = localStorage.getItem('auth_user')
+
+            if (savedToken) {
+                token.value = savedToken
+            }
+
+            if (savedUser) {
+                try {
+                    user.value = JSON.parse(savedUser)
+                } catch (e) {
+                    console.error('Failed to parse user data:', e)
+                    localStorage.removeItem('auth_user')
+                }
+            }
+        }
+    }
+
+    // Save ke localStorage
+    const saveToStorage = () => {
+        if (import.meta.client) {
+            if (token.value) {
+                localStorage.setItem('auth_token', token.value)
+            }
+            if (user.value) {
+                localStorage.setItem('auth_user', JSON.stringify(user.value))
+            }
+        }
+    }
+
+    // Clear localStorage
+    const clearStorage = () => {
+        if (import.meta.client) {
+            localStorage.removeItem('auth_token')
+            localStorage.removeItem('auth_user')
+        }
+    }
+
     const register = async (formData) => {
         loading.value = true
         errors.value = []
@@ -28,7 +69,7 @@ export const useAuthStore = defineStore('auth', () => {
             if (response.success) {
                 token.value = response.data.token
                 user.value = response.data.user
-                localStorage.setItem('auth_token', response.data.token)
+                saveToStorage()
 
                 successMessage.value = 'Registrasi berhasil! Redirecting...'
 
@@ -68,7 +109,7 @@ export const useAuthStore = defineStore('auth', () => {
             if (response.success) {
                 token.value = response.data.token
                 user.value = response.data.user
-                localStorage.setItem('auth_token', response.data.token)
+                saveToStorage()
 
                 successMessage.value = 'Login berhasil!'
 
@@ -107,25 +148,107 @@ export const useAuthStore = defineStore('auth', () => {
 
             if (response.success) {
                 user.value = response.data.user
+                saveToStorage()
             }
 
             return response
         } catch (e) {
-            // Token invalid, logout
             logout()
             throw e
         }
     }
 
-    const checkAuth = async () => {
-        const savedToken = localStorage.getItem('auth_token')
+    const updateProfile = async (formData) => {
+        loading.value = true
+        errors.value = []
+        successMessage.value = ''
 
-        if (savedToken) {
-            token.value = savedToken
+        try {
+            const response = await $fetch('/auth/profile', {
+                method: 'PUT',
+                baseURL: config.public.apiBaseUrl,
+                headers: {
+                    'Authorization': `Bearer ${token.value}`
+                },
+                body: formData
+            })
+
+            if (response.success) {
+                user.value = response.data.user
+                saveToStorage()
+                successMessage.value = 'Profile berhasil diupdate!'
+
+                setTimeout(() => {
+                    successMessage.value = ''
+                }, 3000)
+            }
+
+            return response
+        } catch (e) {
+            if (e.data && e.data.errors) {
+                errors.value = e.data.errors.map(err => err.message)
+            } else if (e.data && e.data.message) {
+                errors.value = [e.data.message]
+            } else {
+                errors.value = ['Terjadi kesalahan saat update profile']
+            }
+            throw e
+        } finally {
+            loading.value = false
+        }
+    }
+
+    const uploadAvatar = async (file) => {
+        loading.value = true
+        errors.value = []
+        successMessage.value = ''
+
+        try {
+            const formData = new FormData()
+            formData.append('avatar', file)
+
+            const response = await $fetch('/auth/avatar', {
+                method: 'POST',
+                baseURL: config.public.apiBaseUrl,
+                headers: {
+                    'Authorization': `Bearer ${token.value}`
+                },
+                body: formData
+            })
+
+            if (response.success) {
+                user.value = response.data.user
+                saveToStorage()
+                successMessage.value = 'Avatar berhasil diupload!'
+
+                setTimeout(() => {
+                    successMessage.value = ''
+                }, 3000)
+            }
+
+            return response
+        } catch (e) {
+            if (e.data && e.data.errors) {
+                errors.value = e.data.errors.map(err => err.message)
+            } else if (e.data && e.data.message) {
+                errors.value = [e.data.message]
+            } else {
+                errors.value = ['Terjadi kesalahan saat upload avatar']
+            }
+            throw e
+        } finally {
+            loading.value = false
+        }
+    }
+
+    const checkAuth = async () => {
+        loadFromStorage()
+
+        if (token.value) {
             try {
                 await fetchProfile()
             } catch (e) {
-                // Token invalid
+                console.error('Auth check failed:', e)
             }
         }
 
@@ -135,7 +258,7 @@ export const useAuthStore = defineStore('auth', () => {
     const logout = () => {
         user.value = null
         token.value = null
-        localStorage.removeItem('auth_token')
+        clearStorage()
         router.push('/auth/login')
     }
 
@@ -147,20 +270,25 @@ export const useAuthStore = defineStore('auth', () => {
         successMessage.value = ''
     }
 
+    // Load data dari localStorage saat store pertama kali dibuat
+    loadFromStorage()
+
     return {
         user,
         token,
         loading,
         errors,
         successMessage,
+        authChecked,
         isLoggedIn,
         register,
         login,
         logout,
         fetchProfile,
+        updateProfile,
+        uploadAvatar,
         checkAuth,
         clearErrors,
-        clearSuccess,
-        authChecked,
+        clearSuccess
     }
 })
