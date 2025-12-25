@@ -18,27 +18,26 @@
                         <NuxtLink to="/">Explore</NuxtLink>
                     </li>
 
-                    <template v-if="!authStore.isLoggedIn">
-                        <li>
-                            <NuxtLink to="/auth/login">Login</NuxtLink>
-                        </li>
-                    </template>
+                    <ClientOnly>
+                        <template v-if="!authStore.isLoggedIn">
+                            <li>
+                                <NuxtLink to="/auth/login">Login</NuxtLink>
+                            </li>
+                        </template>
 
-                    <template v-else>
-                        <li>
-                            <NuxtLink to="/">Tambah Kata</NuxtLink>
-                        </li>
-                        <li>
-                            <NuxtLink to="/profile" class="profile-link">
-                                <img :src="authStore.user?.avatar_url || 'https://api.dicebear.com/9.x/notionists/svg?seed=default&backgroundColor=ffffff'"
-                                    :alt="authStore.user?.username || 'Profile'" class="profile-avatar">
-                                Profile
-                            </NuxtLink>
-                        </li>
-                        <!-- <li>
-                            <a href="#" @click.prevent="handleLogout">Logout</a>
-                        </li> -->
-                    </template>
+                        <template v-else>
+                            <li>
+                                <NuxtLink to="/">Tambah Kata</NuxtLink>
+                            </li>
+                            <li>
+                                <NuxtLink to="/profile" class="profile-link">
+                                    <img :src="authStore.user?.avatar_url" :alt="authStore.user?.username"
+                                        class="profile-avatar">
+                                    Profile
+                                </NuxtLink>
+                            </li>
+                        </template>
+                    </ClientOnly>
                 </ul>
             </div>
         </div>
