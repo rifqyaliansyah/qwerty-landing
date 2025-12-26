@@ -68,14 +68,13 @@ onMounted(async () => {
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div v-if="!postsStore.isLoading && postsStore.posts.length > 0"
-            class="row padding-top-large margin-bottom-none">
-            <div class="sm-12" style="text-align: center;">
-                <NuxtLink to="/posts">
-                    <button>Lihat lebih banyak</button>
-                </NuxtLink>
+            <div v-if="!postsStore.isLoading && postsStore.posts.length > 0"
+                class="row padding-top-large margin-bottom-none">
+                <div class="sm-12" style="text-align: center;">
+                    <NuxtLink to="/posts">
+                        <button>Lihat lebih banyak</button>
+                    </NuxtLink>
+                </div>
             </div>
         </div>
 
