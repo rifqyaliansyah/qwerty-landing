@@ -271,7 +271,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     // Load data dari localStorage saat store pertama kali dibuat
-    loadFromStorage()
+    // loadFromStorage()
 
     return {
         user,
