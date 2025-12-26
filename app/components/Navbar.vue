@@ -27,7 +27,7 @@
 
                         <template v-else>
                             <li>
-                                <NuxtLink to="/">Tambah Kata</NuxtLink>
+                                <NuxtLink to="/addqoutes">Tambah Kata</NuxtLink>
                             </li>
                             <li>
                                 <NuxtLink to="/profile" class="profile-link">
