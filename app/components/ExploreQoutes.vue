@@ -4,8 +4,8 @@ import { PhEye } from '@phosphor-icons/vue'
 
 <template>
     <div class="container">
-        <h3 class="padding-top-large margin-bottom-none">Kata-Kata Paling Populer</h3>
-        <p class="padding-top-none margin-top-none">Yuk, intip kata-kata yang lagi banyak dibaca.</p>
+        <h3 class="padding-top-medium margin-bottom-none">Explore lebih banyak kata-kata</h3>
+        <p class="padding-top-none margin-top-none">Masih banyak kata lain yang bisa kamu temukan di sini.</p>
         <div class="row">
             <div class="sm-12 md-6">
                 <div class="card margin-right-small margin-bottom-small margin-top-small">
@@ -65,6 +65,11 @@ import { PhEye } from '@phosphor-icons/vue'
                             </span>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div class="row padding-top-large margin-bottom-none">
+                <div class="sm-12" style="text-align: center;">
+                    <button>Lihat lebih banyak</button>
                 </div>
             </div>
         </div>

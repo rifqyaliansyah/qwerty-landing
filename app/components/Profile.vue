@@ -198,10 +198,6 @@ const handleUpdate = async () => {
     padding-top: 60px;
 }
 
-.form-spacing {
-    padding: 0 1px;
-}
-
 .profile-header {
     margin-bottom: 30px;
 }
