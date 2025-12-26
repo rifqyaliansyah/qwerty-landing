@@ -1,6 +1,11 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { PhEye } from '@phosphor-icons/vue'
+import { useAuthStore } from '~/stores/auth'
+import { usePostsStore } from '~/stores/posts'
+
+const authStore = useAuthStore()
+const postsStore = usePostsStore()
 
 const judul = ref('')
 const isi = ref('')
@@ -9,20 +14,63 @@ const borderWidth = ref('border')
 const borderStyle = ref('')
 const borderColor = ref('border-primary')
 const isAnonymous = ref(false)
+const showModal = ref(false)
 
 const isSaveDisabled = computed(() => {
     return !judul.value.trim() || !isi.value.trim()
 })
 
 const authorName = computed(() => {
-    return isAnonymous.value ? 'Someone' : 'Penulis'
+    return isAnonymous.value ? 'Someone' : (authStore.user?.username || 'Penulis')
 })
 
 const authorAvatar = computed(() => {
     return isAnonymous.value
         ? '/images/default.jpg'
-        : 'https://api.dicebear.com/9.x/notionists/svg?seed=Titik&backgroundColor=ffffff'
+        : (authStore.user?.avatar_url)
 })
+
+const openConfirmModal = () => {
+    if (!isSaveDisabled.value) {
+        showModal.value = true
+    }
+}
+
+const handleConfirmSave = async () => {
+    showModal.value = false
+
+    try {
+        const post = await postsStore.createPost({
+            title: judul.value,
+            content: isi.value,
+            is_anonymous: isAnonymous.value,
+            styling: {
+                background_color: backgroundColor.value,
+                border_width: borderWidth.value,
+                border_style: borderStyle.value,
+                border_color: borderColor.value
+            }
+        })
+
+        // Reset form
+        judul.value = ''
+        isi.value = ''
+        backgroundColor.value = ''
+        borderWidth.value = 'border'
+        borderStyle.value = ''
+        borderColor.value = 'border-primary'
+        isAnonymous.value = false
+
+        // Optional: redirect ke halaman post yang baru dibuat
+        if (post && post.slug) {
+            // await navigateTo(`/posts/${post.slug}`)
+            await navigateTo(`/`)
+        }
+    } catch (error) {
+        console.error('Error creating post:', error)
+        alert('Gagal membuat post. Silakan coba lagi.')
+    }
+}
 </script>
 
 <template>
@@ -31,24 +79,26 @@ const authorAvatar = computed(() => {
             <div class="sm-12 md-6 card-center">
                 <h3 class="padding-top-large margin-bottom-none">Preview</h3>
                 <p class="padding-top-none margin-top-none">Nah, begini tampilan yang akan muncul.</p>
-                <div class="card margin-right-small margin-bottom-small margin-top-small card-no-border">
-                    <div
-                        :class="['card-body', 'shadow-hover', 'shadow', 'border', backgroundColor, borderWidth, borderStyle, borderColor]">
-                        <h4 class="card-title">{{ judul || 'Judul Kata kata' }}</h4>
-                        <div class="card-author">
-                            <img :src="authorAvatar" alt="Penulis" class="author-avatar">
-                            <h5 class="card-subtitle">{{ authorName }}</h5>
-                        </div>
-                        <p class="card-text">{{ isi || '"Nggak semua hal harus selesai hari ini, yang penting kamu nggak berhenti."' }}
-                        </p>
-                        <div class="card-footer-inline">
-                            <NuxtLink class="card-link" to="#">Lihat</NuxtLink>
-                            <span class="view-count">
-                                <PhEye :size="16" /> 1,234
-                            </span>
+                <ClientOnly>
+                    <div class="card margin-right-small margin-bottom-small margin-top-small card-no-border">
+                        <div
+                            :class="['card-body', 'shadow-hover', 'shadow', 'border', backgroundColor, borderWidth, borderStyle, borderColor]">
+                            <h4 class="card-title">{{ judul || 'Judul Kata kata' }}</h4>
+                            <div class="card-author">
+                                <img :src="authorAvatar" :alt="authorName" class="author-avatar">
+                                <h5 class="card-subtitle">{{ authorName }}</h5>
+                            </div>
+                            <p class="card-text">{{ isi || '"Nggak semua hal harus selesai hari ini, yang penting kamu nggak berhenti."' }}
+                            </p>
+                            <div class="card-footer-inline">
+                                <NuxtLink class="card-link" to="#">Lihat</NuxtLink>
+                                <span class="view-count">
+                                    <PhEye :size="16" /> 1,234
+                                </span>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </ClientOnly>
                 <div class="margin-top-large margin-right-small">
                     <label>Background Color</label>
                     <div class="margin-top-small">
@@ -158,7 +208,24 @@ const authorAvatar = computed(() => {
                         Anonymous
                     </label>
                 </fieldset>
-                <button class="btn-secondary" :disabled="isSaveDisabled">Simpan</button>
+                <button class="btn-secondary" :disabled="isSaveDisabled || postsStore.isLoading"
+                    @click="openConfirmModal">
+                    {{ postsStore.isLoading ? 'Loading...' : 'Simpan' }}
+                </button>
+            </div>
+        </div>
+
+        <input class="modal-state" id="modal-confirm" type="checkbox" :checked="showModal"
+            @change="showModal = $event.target.checked">
+        <div class="modal">
+            <label class="modal-bg" @click="showModal = false"></label>
+            <div class="modal-body">
+                <label class="btn-close" @click="showModal = false">X</label>
+                <h4 class="modal-title">Konfirmasi Posting</h4>
+                <h5 class="modal-subtitle">Yakin mau posting kata-kata ini?</h5>
+                <p class="modal-text">Pastikan judul dan isi sudah benar ya. Styling juga udah oke kan?</p>
+                <button class="btn-secondary" @click="handleConfirmSave">Ya, Posting!</button>
+                <button class="btn-danger" @click="showModal = false">Batal</button>
             </div>
         </div>
     </div>
