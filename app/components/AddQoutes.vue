@@ -694,21 +694,6 @@ onUnmounted(() => {
     width: 50px;
 }
 
-@media (max-width: 767px) {
-    button {
-        width: 100%;
-    }
-
-    .skeleton-button-inline {
-        width: 100%;
-        display: block;
-    }
-
-    .mini-player-content {
-        zoom: 0.4;
-    }
-}
-
 /* Mini Player Styles */
 .mini-player {
     position: fixed;
@@ -718,7 +703,8 @@ onUnmounted(() => {
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-    width: fit-content;
+    max-width: 320px;
+    width: 320px;
 }
 
 .mini-player.dragging {
@@ -753,6 +739,33 @@ onUnmounted(() => {
 
 .mini-player-content {
     zoom: 0.5;
+    width: 640px;
+    overflow: hidden;
+}
+
+.mini-player-content .card-body {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 640px;
+    box-sizing: border-box;
+}
+
+.mini-player-content .card-title {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+    max-width: 100%;
+    white-space: normal;
+}
+
+.mini-player-content .card-text {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+    max-width: 100%;
+    white-space: pre-wrap;
 }
 
 .mini-player-content .card-body:not([class*="background-"]) {
@@ -778,5 +791,26 @@ onUnmounted(() => {
 .mini-player-leave-to {
     opacity: 0;
     transform: scale(0.8) translateY(-20px);
+}
+
+@media (max-width: 767px) {
+    button {
+        width: 100%;
+    }
+
+    .skeleton-button-inline {
+        width: 100%;
+        display: block;
+    }
+
+    .mini-player {
+        max-width: 310px;
+        width: 310px;
+    }
+
+    .mini-player-content {
+        zoom: 0.5;
+        width: 700px;
+    }
 }
 </style>
