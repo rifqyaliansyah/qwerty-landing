@@ -1,6 +1,6 @@
 <script setup>
-import { onMounted, ref } from 'vue'
-import { PhEye, PhDotsThreeVertical, PhPencilSimple, PhTrash } from '@phosphor-icons/vue'
+import { onMounted, ref, computed } from 'vue'
+import { PhHeart, PhDotsThreeVertical, PhPencilSimple, PhTrash } from '@phosphor-icons/vue'
 import { usePostsStore } from '~/stores/posts'
 import { useAuthStore } from '~/stores/auth'
 
@@ -12,6 +12,14 @@ const isLoadingMore = ref(false)
 const openMenuId = ref(null)
 const showDeleteModal = ref(false)
 const postToDelete = ref(null)
+
+const toggleLike = async (post) => {
+    try {
+        await postsStore.toggleLike(post.slug)
+    } catch (error) {
+        console.error('Error toggling like:', error)
+    }
+}
 
 const getAuthorName = (post) => {
     if (post.is_anonymous) return 'Someone'
@@ -126,8 +134,7 @@ onMounted(async () => {
                         <div class="skeleton skeleton-text"></div>
                         <div class="skeleton skeleton-text skeleton-text-short"></div>
                         <div class="card-footer-inline">
-                            <div class="skeleton skeleton-link"></div>
-                            <div class="skeleton skeleton-views"></div>
+                            <div class="skeleton skeleton-heart"></div>
                         </div>
                     </div>
                 </div>
@@ -175,9 +182,11 @@ onMounted(async () => {
                         </div>
                         <p class="card-text">{{ post.content }}</p>
                         <div class="card-footer-inline">
-                            <NuxtLink class="card-link" :to="`/posts/${post.slug}`">Lihat</NuxtLink>
                             <span class="view-count">
-                                <PhEye :size="16" /> {{ post.views || 0 }}
+                                <PhHeart :size="20" :weight="post.is_liked_by_user ? 'fill' : 'regular'"
+                                    @click="toggleLike(post)" class="heart-icon"
+                                    :class="{ 'liked': post.is_liked_by_user }" />
+                                {{ post.likes_count || 0 }}
                             </span>
                         </div>
                     </div>
@@ -260,7 +269,6 @@ onMounted(async () => {
 
 .card-footer-inline {
     display: flex;
-    justify-content: space-between;
     align-items: center;
 }
 
@@ -270,6 +278,19 @@ onMounted(async () => {
     gap: 5px;
     font-size: 0.9rem;
     color: #666;
+}
+
+.heart-icon {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.heart-icon:hover {
+    transform: scale(1.2);
+}
+
+.heart-icon.liked {
+    color: #ff0000;
 }
 
 /* Menu Styles */
@@ -375,14 +396,9 @@ onMounted(async () => {
     width: 80%;
 }
 
-.skeleton-link {
-    height: 16px;
+.skeleton-heart {
+    height: 20px;
     width: 50px;
-}
-
-.skeleton-views {
-    height: 16px;
-    width: 40px;
 }
 
 @media (max-width: 520px) {

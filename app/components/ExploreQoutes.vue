@@ -1,9 +1,33 @@
 <script setup>
-import { onMounted } from 'vue'
-import { PhEye } from '@phosphor-icons/vue'
+import { onMounted, ref } from 'vue'
+import { PhHeart } from '@phosphor-icons/vue'
 import { usePostsStore } from '~/stores/posts'
+import { useAuthStore } from '~/stores/auth'
+import { useRouter } from 'vue-router'
 
 const postsStore = usePostsStore()
+const authStore = useAuthStore()
+const router = useRouter()
+
+const showLoginModal = ref(false)
+
+const toggleLike = async (post) => {
+    if (!authStore.isLoggedIn) {
+        showLoginModal.value = true
+        return
+    }
+
+    try {
+        await postsStore.toggleLike(post.slug)
+    } catch (error) {
+        console.error('Error toggling like:', error)
+    }
+}
+
+const handleGoToLogin = () => {
+    showLoginModal.value = false
+    router.push('/auth/login')
+}
 
 const getAuthorName = (post) => {
     if (post.is_anonymous) return 'Someone'
@@ -35,6 +59,21 @@ onMounted(async () => {
         <h3 class="padding-top-medium margin-bottom-none">Explore lebih banyak kata-kata</h3>
         <p class="padding-top-none margin-top-none">Masih banyak kata lain yang bisa kamu temukan di sini.</p>
 
+        <!-- Modal Login -->
+        <input class="modal-state" id="modal-login" type="checkbox" :checked="showLoginModal"
+            @change="showLoginModal = $event.target.checked">
+        <div class="modal">
+            <label class="modal-bg" @click="showLoginModal = false"></label>
+            <div class="modal-body">
+                <label class="btn-close" @click="showLoginModal = false">X</label>
+                <h4 class="modal-title">Login Diperlukan</h4>
+                <h5 class="modal-subtitle">Kamu harus login dulu</h5>
+                <p class="modal-text">Silakan login terlebih dahulu untuk like post.</p>
+                <button class="btn-secondary" @click="handleGoToLogin">Login</button>
+                <button class="btn-danger" @click="showLoginModal = false">Batal</button>
+            </div>
+        </div>
+
         <!-- Skeleton Loading -->
         <div v-if="postsStore.isLoading" class="row">
             <div v-for="i in 4" :key="`skeleton-${i}`" class="col-12 sm-12 md-6">
@@ -50,8 +89,7 @@ onMounted(async () => {
                         <div class="skeleton skeleton-text"></div>
                         <div class="skeleton skeleton-text skeleton-text-short"></div>
                         <div class="card-footer-inline">
-                            <div class="skeleton skeleton-link"></div>
-                            <div class="skeleton skeleton-views"></div>
+                            <div class="skeleton skeleton-heart"></div>
                         </div>
                     </div>
                 </div>
@@ -80,9 +118,11 @@ onMounted(async () => {
                         </div>
                         <p class="card-text">{{ post.content }}</p>
                         <div class="card-footer-inline">
-                            <NuxtLink class="card-link" :to="`/posts/${post.slug}`">Lihat</NuxtLink>
                             <span class="view-count">
-                                <PhEye :size="16" /> {{ post.views || 0 }}
+                                <PhHeart :size="20" :weight="post.is_liked_by_user ? 'fill' : 'regular'"
+                                    @click="toggleLike(post)" class="heart-icon"
+                                    :class="{ 'liked': post.is_liked_by_user }" />
+                                {{ post.likes_count || 0 }}
                             </span>
                         </div>
                     </div>
@@ -138,7 +178,6 @@ onMounted(async () => {
 
 .card-footer-inline {
     display: flex;
-    justify-content: space-between;
     align-items: center;
 }
 
@@ -148,6 +187,33 @@ onMounted(async () => {
     gap: 5px;
     font-size: 0.9rem;
     color: #666;
+}
+
+.heart-icon {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.heart-icon:hover {
+    transform: scale(1.2);
+}
+
+.heart-icon.liked {
+    color: #ff0000;
+}
+
+/* Modal Styles */
+.modal-body {
+    text-align: left;
+}
+
+.modal-title,
+.modal-subtitle {
+    text-align: left;
+}
+
+.modal-text {
+    text-align: left;
 }
 
 /* Skeleton Styles */
@@ -197,13 +263,8 @@ onMounted(async () => {
     width: 80%;
 }
 
-.skeleton-link {
-    height: 16px;
+.skeleton-heart {
+    height: 20px;
     width: 50px;
-}
-
-.skeleton-views {
-    height: 16px;
-    width: 40px;
 }
 </style>
