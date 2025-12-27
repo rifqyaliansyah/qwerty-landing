@@ -1,5 +1,5 @@
 <template>
-    <nav class="container border fixed split-nav">
+    <nav class="container border fixed split-nav" style="z-index: 300;">
         <div class="nav-brand">
             <h3>
                 <NuxtLink to="/">Kata-Ku</NuxtLink>
