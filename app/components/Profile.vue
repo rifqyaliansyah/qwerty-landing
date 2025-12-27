@@ -4,27 +4,47 @@
             <div class="row">
                 <div class="sm-12 md-6 profile-center padding-bottom-large">
                     <div class="profile-header">
-                        <img :src="authStore.user?.avatar_url || '/default-avatar.png'" alt="Profile"
-                            class="profile-image">
-                        <h3>{{ authStore.user?.username || 'Loading...' }}'s Profile</h3>
+                        <img :src="authStore.user?.avatar_url" alt="Profile" class="profile-image">
+                        <h3>{{ authStore.user?.username }}'s Profile</h3>
                     </div>
 
-                    <!-- Modal Success -->
-                    <input class="modal-state" id="modal-success" type="checkbox" v-model="showSuccessModal">
+                    <!-- Modal Confirm Update -->
+                    <input class="modal-state" id="modal-confirm" type="checkbox" :checked="showConfirmModal"
+                        @change="showConfirmModal = $event.target.checked">
                     <div class="modal">
-                        <label class="modal-bg" for="modal-success"></label>
+                        <label class="modal-bg" @click="showConfirmModal = false"></label>
                         <div class="modal-body">
-                            <h4 class="modal-title">Berhasil!</h4>
-                            <p class="modal-text">Profile berhasil diupdate</p>
-                            <label class="paper-btn" for="modal-success">OK</label>
+                            <label class="btn-close" @click="showConfirmModal = false">X</label>
+                            <h4 class="modal-title">Konfirmasi Update Profile</h4>
+                            <h5 class="modal-subtitle">Yakin mau update profile?</h5>
+                            <p class="modal-text">Pastikan data yang diinput sudah benar ya.</p>
+                            <button class="btn-secondary" @click="handleConfirmUpdate">Ya, Update!</button>
+                            <button class="btn-danger" @click="showConfirmModal = false">Batal</button>
+                        </div>
+                    </div>
+
+                    <!-- Modal Confirm Logout -->
+                    <input class="modal-state" id="modal-logout" type="checkbox" :checked="showLogoutModal"
+                        @change="showLogoutModal = $event.target.checked">
+                    <div class="modal">
+                        <label class="modal-bg" @click="showLogoutModal = false"></label>
+                        <div class="modal-body">
+                            <label class="btn-close" @click="showLogoutModal = false">X</label>
+                            <h4 class="modal-title">Konfirmasi Logout</h4>
+                            <h5 class="modal-subtitle">Yakin mau keluar?</h5>
+                            <p class="modal-text">Kamu akan logout dari akun ini.</p>
+                            <button class="btn-danger" @click="handleConfirmLogout">Ya, Logout!</button>
+                            <button class="btn-secondary" @click="showLogoutModal = false">Batal</button>
                         </div>
                     </div>
 
                     <!-- Modal Error -->
-                    <input class="modal-state" id="modal-error" type="checkbox" v-model="showErrorModal">
+                    <input class="modal-state" id="modal-error" type="checkbox" :checked="showErrorModal"
+                        @change="showErrorModal = $event.target.checked">
                     <div class="modal">
-                        <label class="modal-bg" for="modal-error"></label>
+                        <label class="modal-bg" @click="showErrorModal = false"></label>
                         <div class="modal-body">
+                            <label class="btn-close" @click="showErrorModal = false">X</label>
                             <h4 class="modal-title">Error!</h4>
                             <div class="modal-text">
                                 <ul style="margin: 0; padding-left: 1.5rem; text-align: left;">
@@ -33,11 +53,11 @@
                                     </li>
                                 </ul>
                             </div>
-                            <label class="paper-btn" for="modal-error">OK</label>
+                            <button class="btn-secondary" @click="showErrorModal = false">OK</button>
                         </div>
                     </div>
 
-                    <form @submit.prevent="handleUpdate">
+                    <form @submit.prevent="openConfirmModal">
                         <div class="form-group">
                             <label for="paperInputs1">Username</label>
                             <input v-model="form.username" type="text" placeholder="Masukkan username" id="paperInputs1"
@@ -56,9 +76,13 @@
                                 :disabled="authStore.loading">
                         </div>
 
-                        <button type="submit" class="btn-secondary" :disabled="authStore.loading || !hasChanges">
-                            {{ authStore.loading ? 'Loading...' : 'Update' }}
-                        </button>
+                            <button type="submit" class="btn-secondary" :disabled="authStore.loading || !hasChanges">
+                                {{ authStore.loading ? 'Loading...' : 'Update' }}
+                            </button>
+                            <button type="button" class="btn-danger" @click="openLogoutModal"
+                                :disabled="authStore.loading">
+                                Logout
+                            </button>
                     </form>
                 </div>
             </div>
@@ -87,7 +111,8 @@ const form = reactive({
 })
 
 const selectedFile = ref(null)
-const showSuccessModal = ref(false)
+const showConfirmModal = ref(false)
+const showLogoutModal = ref(false)
 const showErrorModal = ref(false)
 
 // Computed untuk cek ada perubahan atau tidak
@@ -107,14 +132,6 @@ const syncFormData = () => {
 onMounted(() => {
     syncFormData()
     authStore.clearErrors()
-    authStore.clearSuccess()
-})
-
-// Watch untuk success message
-watch(() => authStore.successMessage, (newVal) => {
-    if (newVal) {
-        showSuccessModal.value = true
-    }
 })
 
 // Watch untuk errors
@@ -124,13 +141,7 @@ watch(() => authStore.errors.length, (newVal) => {
     }
 })
 
-// Watch ketika modal ditutup, clear message
-watch(showSuccessModal, (newVal) => {
-    if (!newVal) {
-        authStore.clearSuccess()
-    }
-})
-
+// Watch ketika modal error ditutup, clear message
 watch(showErrorModal, (newVal) => {
     if (!newVal) {
         authStore.clearErrors()
@@ -162,11 +173,15 @@ const handleFileChange = (event) => {
     }
 }
 
-const handleUpdate = async () => {
+const openConfirmModal = () => {
     if (!hasChanges.value) return
+    showConfirmModal.value = true
+}
+
+const handleConfirmUpdate = async () => {
+    showConfirmModal.value = false
 
     authStore.clearErrors()
-    authStore.clearSuccess()
 
     try {
         if (form.username !== authStore.user.username) {
@@ -181,6 +196,15 @@ const handleUpdate = async () => {
     } catch (e) {
         console.error('Update error:', e)
     }
+}
+
+const openLogoutModal = () => {
+    showLogoutModal.value = true
+}
+
+const handleConfirmLogout = async () => {
+    showLogoutModal.value = false
+    await authStore.logout()
 }
 </script>
 
@@ -227,7 +251,16 @@ button:disabled {
 }
 
 .modal-body {
-    text-align: center;
+    text-align: left;
+}
+
+.modal-title,
+.modal-subtitle {
+    text-align: left;
+}
+
+.modal-text {
+    text-align: left;
 }
 
 /* Responsive untuk mobile */
@@ -241,7 +274,12 @@ button:disabled {
         height: 120px;
     }
 
-    button {
+    .button-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .button-group button {
         width: 100%;
     }
 }
