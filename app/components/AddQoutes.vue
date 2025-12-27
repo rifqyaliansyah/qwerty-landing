@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { PhHeart } from '@phosphor-icons/vue'
 import { useAuthStore } from '~/stores/auth'
 import { usePostsStore } from '~/stores/posts'
@@ -21,6 +21,14 @@ const showModal = ref(false)
 const isEditMode = ref(false)
 const postSlug = ref(null)
 const isLoadingPost = ref(false)
+
+// Mini player states
+const isFloating = ref(false)
+const isDragging = ref(false)
+const miniPlayerPosition = ref({ x: 20, y: 20 })
+const dragStart = ref({ x: 0, y: 0 })
+const previewRef = ref(null)
+const previewOffset = ref(0)
 
 const isSaveDisabled = computed(() => {
     return !judul.value.trim() || !isi.value.trim()
@@ -106,6 +114,56 @@ const handleConfirmSave = async () => {
     }
 }
 
+// Handle scroll for mini player
+const handleScroll = () => {
+    if (!previewRef.value) return
+
+    const previewTop = previewOffset.value
+    const scrollY = window.scrollY
+
+    // Show floating when scrolled past preview + 100px buffer
+    if (scrollY > previewTop + 100) {
+        isFloating.value = true
+    } else {
+        isFloating.value = false
+    }
+}
+
+// Dragging functions
+const startDrag = (e) => {
+    isDragging.value = true
+    const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX
+    const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY
+    
+    dragStart.value = {
+        x: clientX - miniPlayerPosition.value.x,
+        y: clientY - miniPlayerPosition.value.y
+    }
+}
+
+const onDrag = (e) => {
+    if (!isDragging.value) return
+    
+    const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX
+    const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY
+    
+    const newX = clientX - dragStart.value.x
+    const newY = clientY - dragStart.value.y
+    
+    // Keep within viewport bounds
+    const maxX = window.innerWidth - 320 // mini player width
+    const maxY = window.innerHeight - 200 // approximate mini player height
+    
+    miniPlayerPosition.value = {
+        x: Math.max(20, Math.min(newX, maxX)),
+        y: Math.max(20, Math.min(newY, maxY))
+    }
+}
+
+const stopDrag = () => {
+    isDragging.value = false
+}
+
 const loadPostForEdit = async () => {
     if (!route.params.slug) return
 
@@ -148,6 +206,28 @@ onMounted(() => {
     if (route.params.slug) {
         loadPostForEdit()
     }
+
+    // Get preview offset after mount
+    setTimeout(() => {
+        if (previewRef.value) {
+            previewOffset.value = previewRef.value.offsetTop
+        }
+    }, 100)
+
+    // Add scroll listener
+    window.addEventListener('scroll', handleScroll)
+    window.addEventListener('mousemove', onDrag)
+    window.addEventListener('mouseup', stopDrag)
+    window.addEventListener('touchmove', onDrag)
+    window.addEventListener('touchend', stopDrag)
+})
+
+onUnmounted(() => {
+    window.removeEventListener('scroll', handleScroll)
+    window.removeEventListener('mousemove', onDrag)
+    window.removeEventListener('mouseup', stopDrag)
+    window.removeEventListener('touchmove', onDrag)
+    window.removeEventListener('touchend', stopDrag)
 })
 </script>
 
@@ -241,7 +321,9 @@ onMounted(() => {
                         {{ isEditMode ? 'Edit kata-kata kamu dan lihat perubahannya.' : 'Nah, begini tampilan yang akan muncul.' }}
                     </p>
                     <ClientOnly>
-                        <div class="card margin-right-small margin-bottom-small margin-top-small card-no-border">
+                        <!-- Original Preview -->
+                        <div ref="previewRef" class="card margin-right-small margin-bottom-small margin-top-small card-no-border"
+                            :class="{ 'preview-hidden': isFloating }">
                             <div
                                 :class="['card-body', 'shadow-hover', 'shadow', 'border', backgroundColor, borderWidth, borderStyle, borderColor]">
                                 <h4 class="card-title">{{ judul || 'Judul Kata kata' }}</h4>
@@ -259,6 +341,42 @@ onMounted(() => {
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Floating Mini Player -->
+                        <Transition name="mini-player">
+                            <div v-if="isFloating"
+                                class="mini-player"
+                                :class="{ 'dragging': isDragging }"
+                                :style="{
+                                    left: miniPlayerPosition.x + 'px',
+                                    top: miniPlayerPosition.y + 'px'
+                                }"
+                                @mousedown="startDrag"
+                                @touchstart="startDrag">
+                                <div class="mini-player-drag-handle">
+                                    <span class="drag-indicator">⋮⋮</span>
+                                    <span class="mini-label">Preview</span>
+                                </div>
+                                <div class="mini-player-content">
+                                    <div
+                                        :class="['card-body', 'shadow-hover', 'shadow', 'border', backgroundColor, borderWidth, borderStyle, borderColor]">
+                                        <h4 class="card-title margin-top-small margin-bottom-small">{{ judul || 'Judul Kata kata' }}</h4>
+                                        <div class="card-author">
+                                            <img :src="authorAvatar" :alt="authorName" class="author-avatar">
+                                            <h5 class="card-subtitle">{{ authorName }}</h5>
+                                        </div>
+                                        <p class="card-text">{{ isi || '"Nggak semua hal harus selesai hari ini, yang penting kamu nggak berhenti."' }}
+                                        </p>
+                                        <div class="card-footer-inline">
+                                            <span class="like-count">
+                                                <PhHeart :size="20" weight="regular" class="heart-icon-static" />
+                                                <span>0</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </Transition>
                     </ClientOnly>
                     <div class="margin-top-large margin-right-small">
                         <label>Background Color</label>
@@ -267,24 +385,24 @@ onMounted(() => {
                                 @click="backgroundColor = ''; borderColor = ''">
                                 Default
                             </button>
-                            <button :class="['btn-primary', { 'btn-active': backgroundColor === 'background-primary' }]"
+                            <button :class="['btn-block', 'btn-primary', { 'btn-active': backgroundColor === 'background-primary' }]"
                                 @click="backgroundColor = 'background-primary'; borderColor = 'border-primary'">
                                 Primary
                             </button>
                             <button
-                                :class="['btn-secondary', { 'btn-active': backgroundColor === 'background-secondary' }]"
+                                :class="['btn-block', 'btn-secondary', { 'btn-active': backgroundColor === 'background-secondary' }]"
                                 @click="backgroundColor = 'background-secondary'; borderColor = 'border-secondary'">
                                 Secondary
                             </button>
-                            <button :class="['btn-success', { 'btn-active': backgroundColor === 'background-success' }]"
+                            <button :class="['btn-block', 'btn-success', { 'btn-active': backgroundColor === 'background-success' }]"
                                 @click="backgroundColor = 'background-success'; borderColor = 'border-success'">
                                 Success
                             </button>
-                            <button :class="['btn-warning', { 'btn-active': backgroundColor === 'background-warning' }]"
+                            <button :class="['btn-block', 'btn-warning', { 'btn-active': backgroundColor === 'background-warning' }]"
                                 @click="backgroundColor = 'background-warning'; borderColor = 'border-warning'">
                                 Warning
                             </button>
-                            <button :class="['btn-danger', { 'btn-active': backgroundColor === 'background-danger' }]"
+                            <button :class="['btn-block', 'btn-danger', { 'btn-active': backgroundColor === 'background-danger' }]"
                                 @click="backgroundColor = 'background-danger'; borderColor = 'border-danger'">
                                 Danger
                             </button>
@@ -585,5 +703,80 @@ onMounted(() => {
         width: 100%;
         display: block;
     }
+
+    .mini-player-content {
+        zoom: 0.4;
+    }
+}
+
+/* Mini Player Styles */
+.mini-player {
+    position: fixed;
+    z-index: 9999;
+    cursor: move;
+    user-select: none;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    width: fit-content;
+}
+
+.mini-player.dragging {
+    cursor: grabbing;
+}
+
+.mini-player-drag-handle {
+    background: #41403e;
+    color: white;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: grab;
+    zoom: 1;
+}
+
+.mini-player.dragging .mini-player-drag-handle {
+    cursor: grabbing;
+}
+
+.drag-indicator {
+    font-size: 1rem;
+    opacity: 0.7;
+}
+
+.mini-label {
+    flex: 1;
+}
+
+.mini-player-content {
+    zoom: 0.5;
+}
+
+.mini-player-content .card-body:not([class*="background-"]) {
+    background-color: white;
+}
+
+.preview-hidden {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+/* Mini Player Transition */
+.mini-player-enter-active,
+.mini-player-leave-active {
+    transition: all 0.3s ease;
+}
+
+.mini-player-enter-from {
+    opacity: 0;
+    transform: scale(0.8) translateY(-20px);
+}
+
+.mini-player-leave-to {
+    opacity: 0;
+    transform: scale(0.8) translateY(-20px);
 }
 </style>
