@@ -67,7 +67,7 @@ import { PhEye } from '@phosphor-icons/vue'
                     </div>
                 </div>
             </div>
-            <div class="sm-12 md-6">
+            <!-- <div class="sm-12 md-6">
                 <div class="card margin-left-small margin-bottom-small margin-top-small card-no-border">
                     <div class="card-body">
                         <h4 class="card-title">Five Card</h4>
@@ -96,7 +96,7 @@ import { PhEye } from '@phosphor-icons/vue'
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 </template>
