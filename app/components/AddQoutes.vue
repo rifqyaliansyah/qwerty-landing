@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { PhEye } from '@phosphor-icons/vue'
+import { PhHeart } from '@phosphor-icons/vue'
 import { useAuthStore } from '~/stores/auth'
 import { usePostsStore } from '~/stores/posts'
 import { useRoute, useRouter } from 'vue-router'
@@ -144,7 +144,7 @@ const loadPostForEdit = async () => {
 
 onMounted(() => {
     window.scrollTo(0, 0)
-    
+
     if (route.params.slug) {
         loadPostForEdit()
     }
@@ -175,8 +175,7 @@ onMounted(() => {
                             <div class="skeleton skeleton-text"></div>
                             <div class="skeleton skeleton-text skeleton-text-short"></div>
                             <div class="card-footer-inline">
-                                <div class="skeleton skeleton-link"></div>
-                                <div class="skeleton skeleton-views"></div>
+                                <div class="skeleton skeleton-heart"></div>
                             </div>
                         </div>
                     </div>
@@ -253,9 +252,9 @@ onMounted(() => {
                                 <p class="card-text">{{ isi || '"Nggak semua hal harus selesai hari ini, yang penting kamu nggak berhenti."' }}
                                 </p>
                                 <div class="card-footer-inline">
-                                    <NuxtLink class="card-link" to="#">Lihat</NuxtLink>
-                                    <span class="view-count">
-                                        <PhEye :size="16" /> 1,234
+                                    <span class="like-count">
+                                        <PhHeart :size="20" weight="regular" class="heart-icon-static" />
+                                        <span>0</span>
                                     </span>
                                 </div>
                             </div>
@@ -402,7 +401,6 @@ onMounted(() => {
 
 .card-footer-inline {
     display: flex;
-    justify-content: space-between;
     align-items: center;
 }
 
@@ -412,6 +410,20 @@ onMounted(() => {
     gap: 5px;
     font-size: 0.9rem;
     color: #666;
+}
+
+.like-count {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.heart-icon-static {
+    color: #666;
+    display: flex;
+    align-items: center;
 }
 
 .card-no-border {
@@ -559,14 +571,9 @@ onMounted(() => {
     width: 80%;
 }
 
-.skeleton-link {
-    height: 16px;
+.skeleton-heart {
+    height: 20px;
     width: 50px;
-}
-
-.skeleton-views {
-    height: 16px;
-    width: 40px;
 }
 
 @media (max-width: 767px) {
