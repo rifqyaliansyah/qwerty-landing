@@ -1,79 +1,76 @@
 <template>
     <ClientOnly>
-        <div class="container profile-container">
-            <div class="row profile-header">
-                <div class="sm-12">
-                    <div class="profile-preview">
+        <div class="container">
+            <div class="row">
+                <div class="sm-12 md-6 profile-center padding-bottom-large">
+                    <div class="profile-header">
                         <img :src="authStore.user?.avatar_url || '/default-avatar.png'" alt="Profile"
-                            class="profile-preview-image">
-                        <h4>{{ authStore.user?.username || 'Loading...' }}'s Profile</h4>
+                            class="profile-image">
+                        <h3>{{ authStore.user?.username || 'Loading...' }}'s Profile</h3>
                     </div>
-                </div>
-            </div>
 
-            <!-- Modal Success -->
-            <input class="modal-state" id="modal-success" type="checkbox" v-model="showSuccessModal">
-            <div class="modal">
-                <label class="modal-bg" for="modal-success"></label>
-                <div class="modal-body">
-                    <h4 class="modal-title">Berhasil!</h4>
-                    <p class="modal-text">Profile berhasil diupdate</p>
-                    <label class="paper-btn" for="modal-success">OK</label>
-                </div>
-            </div>
-
-            <!-- Modal Error -->
-            <input class="modal-state" id="modal-error" type="checkbox" v-model="showErrorModal">
-            <div class="modal">
-                <label class="modal-bg" for="modal-error"></label>
-                <div class="modal-body">
-                    <h4 class="modal-title">Error!</h4>
-                    <div class="modal-text">
-                        <ul style="margin: 0; padding-left: 1.5rem; text-align: left;">
-                            <li v-for="(error, index) in authStore.errors" :key="index">
-                                {{ error }}
-                            </li>
-                        </ul>
+                    <!-- Modal Success -->
+                    <input class="modal-state" id="modal-success" type="checkbox" v-model="showSuccessModal">
+                    <div class="modal">
+                        <label class="modal-bg" for="modal-success"></label>
+                        <div class="modal-body">
+                            <h4 class="modal-title">Berhasil!</h4>
+                            <p class="modal-text">Profile berhasil diupdate</p>
+                            <label class="paper-btn" for="modal-success">OK</label>
+                        </div>
                     </div>
-                    <label class="paper-btn" for="modal-error">OK</label>
-                </div>
-            </div>
 
-            <form @submit.prevent="handleUpdate">
-                <div class="row">
-                    <div class="sm-12 md-6">
-                        <div class="form-group form-spacing">
+                    <!-- Modal Error -->
+                    <input class="modal-state" id="modal-error" type="checkbox" v-model="showErrorModal">
+                    <div class="modal">
+                        <label class="modal-bg" for="modal-error"></label>
+                        <div class="modal-body">
+                            <h4 class="modal-title">Error!</h4>
+                            <div class="modal-text">
+                                <ul style="margin: 0; padding-left: 1.5rem; text-align: left;">
+                                    <li v-for="(error, index) in authStore.errors" :key="index">
+                                        {{ error }}
+                                    </li>
+                                </ul>
+                            </div>
+                            <label class="paper-btn" for="modal-error">OK</label>
+                        </div>
+                    </div>
+
+                    <form @submit.prevent="handleUpdate">
+                        <div class="form-group">
                             <label for="paperInputs1">Username</label>
-                            <input v-model="form.username" class="input-block" type="text"
-                                placeholder="Masukkan username" id="paperInputs1" :disabled="authStore.loading">
+                            <input v-model="form.username" type="text" placeholder="Masukkan username" id="paperInputs1"
+                                :disabled="authStore.loading">
                         </div>
-                    </div>
-                    <div class="sm-12 md-6">
-                        <div class="form-group form-spacing">
+
+                        <div class="form-group">
                             <label for="paperInputs2">Email</label>
-                            <input v-model="form.email" class="input-block" type="email" placeholder="Masukkan email"
-                                id="paperInputs2" disabled>
+                            <input v-model="form.email" type="email" placeholder="Masukkan email" id="paperInputs2"
+                                disabled>
                         </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="sm-12">
+
                         <div class="form-group">
                             <label for="paperInputs3">Update Profile Image</label>
                             <input type="file" id="paperInputs3" @change="handleFileChange" accept="image/*"
                                 :disabled="authStore.loading">
                         </div>
+
                         <button type="submit" class="btn-secondary" :disabled="authStore.loading || !hasChanges">
                             {{ authStore.loading ? 'Loading...' : 'Update' }}
                         </button>
-                    </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
 
         <template #fallback>
-            <div class="container profile-container">
-                <p>Loading...</p>
+            <div class="container">
+                <div class="row">
+                    <div class="sm-12 md-6 profile-center">
+                        <p>Loading...</p>
+                    </div>
+                </div>
             </div>
         </template>
     </ClientOnly>
@@ -188,28 +185,20 @@ const handleUpdate = async () => {
 </script>
 
 <style scoped>
-.profile-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    max-width: 800px;
-    padding-top: 60px;
+.profile-center {
+    margin: 0 auto;
+    padding-top: 100px;
 }
 
 .profile-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
     margin-bottom: 30px;
 }
 
-.profile-preview {
-    display: flex;
-    align-items: center;
-    gap: 30px;
-    justify-content: center;
-}
-
-.profile-preview-image {
+.profile-image {
     width: 100px;
     height: 100px;
     border-radius: 50%;
@@ -217,8 +206,19 @@ const handleUpdate = async () => {
     object-fit: cover;
 }
 
-.profile-preview h4 {
+.profile-header h3 {
     margin: 0;
+    text-align: center;
+}
+
+.form-group {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.form-group input {
+    width: 100%;
+    box-sizing: border-box;
 }
 
 button:disabled {
@@ -228,5 +228,21 @@ button:disabled {
 
 .modal-body {
     text-align: center;
+}
+
+/* Responsive untuk mobile */
+@media (max-width: 767px) {
+    .profile-center {
+        padding-top: 100px;
+    }
+
+    .profile-image {
+        width: 120px;
+        height: 120px;
+    }
+
+    button {
+        width: 100%;
+    }
 }
 </style>
