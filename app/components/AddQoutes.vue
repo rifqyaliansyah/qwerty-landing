@@ -798,14 +798,17 @@ onUnmounted(() => {
         width: 100%;
     }
 
-    .form-group input,
-    .form-group textarea {
-        max-width: 100vw;
-    }
-
     .skeleton-button-inline {
         width: 100%;
         display: block;
+    }
+
+    .card-title,
+    .card-text {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        max-width: 100%;
     }
 
     .mini-player {
