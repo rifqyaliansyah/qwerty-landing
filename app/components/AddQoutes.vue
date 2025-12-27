@@ -697,7 +697,7 @@ onUnmounted(() => {
 /* Mini Player Styles */
 .mini-player {
     position: fixed;
-    z-index: 9999;
+    z-index: 200;
     cursor: move;
     user-select: none;
     border-radius: 8px;
@@ -812,8 +812,8 @@ onUnmounted(() => {
     }
 
     .mini-player {
-        max-width: 310px;
-        width: 310px;
+        max-width: 320px;
+        width: 320px;
     }
 
     .mini-player-content {
