@@ -70,11 +70,11 @@
                                 disabled>
                         </div>
 
-                        <div class="form-group">
+                        <!-- <div class="form-group">
                             <label for="paperInputs3">Update Profile Image</label>
                             <input type="file" id="paperInputs3" @change="handleFileChange" accept="image/*"
                                 :disabled="authStore.loading">
-                        </div>
+                        </div> -->
 
                             <button type="submit" class="btn-secondary" :disabled="authStore.loading || !hasChanges">
                                 {{ authStore.loading ? 'Loading...' : 'Update' }}

@@ -31,7 +31,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="container">
+    <div class="container padding-top-large">
         <h3 class="padding-top-medium margin-bottom-none">Explore lebih banyak kata-kata</h3>
         <p class="padding-top-none margin-top-none">Masih banyak kata lain yang bisa kamu temukan di sini.</p>
 
@@ -90,7 +90,7 @@ onMounted(async () => {
             </div>
 
             <!-- View More Button -->
-            <div v-if="!postsStore.isLoading && postsStore.posts.length > 0"
+            <div v-if="!postsStore.isLoading && postsStore.posts.length >= 4"
                 class="row padding-top-large margin-bottom-none">
                 <div class="sm-12" style="text-align: center;">
                     <NuxtLink to="/posts">
