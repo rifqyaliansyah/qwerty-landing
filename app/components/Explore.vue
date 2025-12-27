@@ -1,9 +1,12 @@
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { PhEye } from '@phosphor-icons/vue'
 import { usePostsStore } from '~/stores/posts'
 
 const postsStore = usePostsStore()
+
+const currentPage = ref(1)
+const isLoadingMore = ref(false)
 
 const getAuthorName = (post) => {
     if (post.is_anonymous) return 'Someone'
@@ -25,18 +28,30 @@ const getStyling = (post) => {
     }
 }
 
+const loadMore = async () => {
+    isLoadingMore.value = true
+    currentPage.value++
+    await postsStore.fetchPosts(currentPage.value, 4)
+    isLoadingMore.value = false
+}
+
+const hasMorePosts = computed(() => {
+    const pagination = postsStore.pagination
+    return pagination && currentPage.value < pagination.total_pages
+})
+
 onMounted(async () => {
     await postsStore.fetchPosts(1, 4)
 })
 </script>
 
 <template>
-    <div class="container">
-        <h3 class="padding-top-medium margin-bottom-none">Explore lebih banyak kata-kata</h3>
-        <p class="padding-top-none margin-top-none">Masih banyak kata lain yang bisa kamu temukan di sini.</p>
+    <div class="container padding-top-large">
+        <h3 class="padding-top-medium margin-bottom-none">Explore Kata-Kata</h3>
+        <p class="padding-top-none margin-top-none">Banyak kata menunggu untuk dibaca.</p>
 
         <!-- Skeleton Loading -->
-        <div v-if="postsStore.isLoading" class="row">
+        <div v-if="postsStore.isLoading && currentPage === 1" class="row">
             <div v-for="i in 4" :key="`skeleton-${i}`" class="col-12 sm-12 md-6">
                 <div
                     class="card margin-right-small margin-left-small margin-bottom-small margin-top-small card-no-border">
@@ -89,13 +104,13 @@ onMounted(async () => {
                 </div>
             </div>
 
-            <!-- View More Button -->
-            <div v-if="!postsStore.isLoading && postsStore.posts.length >= 4"
+            <!-- Load More Button -->
+            <div v-if="!postsStore.isLoading && postsStore.posts.length > 0 && hasMorePosts"
                 class="row padding-top-large margin-bottom-none">
                 <div class="sm-12" style="text-align: center;">
-                    <NuxtLink to="/explore">
-                        <button>Lihat lebih banyak</button>
-                    </NuxtLink>
+                    <button @click="loadMore" :disabled="isLoadingMore">
+                        {{ isLoadingMore ? 'Loading...' : 'Lihat lebih banyak' }}
+                    </button>
                 </div>
             </div>
         </div>

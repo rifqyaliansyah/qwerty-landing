@@ -15,7 +15,7 @@
             <div class="collapsible-body">
                 <ul class="inline">
                     <li>
-                        <NuxtLink to="/">Explore</NuxtLink>
+                        <NuxtLink to="/explore">Explore</NuxtLink>
                     </li>
 
                     <ClientOnly>
