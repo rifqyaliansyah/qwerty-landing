@@ -41,7 +41,7 @@
                     <h5 class="card-title">Belum Punya Akun? <NuxtLink to="/auth/register"><b>Daftar</b></NuxtLink>
                     </h5>
 
-                    <button type="submit" :disabled="authStore.loading">
+                    <button class="btn-secondary" type="submit" :disabled="authStore.loading">
                         {{ authStore.loading ? 'Loading...' : 'Login' }}
                     </button>
                 </form>
@@ -99,6 +99,10 @@ watch(() => [form.email, form.password], () => {
 
 .card-title-center {
     text-align: center;
+}
+
+button {
+    width: 100%;
 }
 
 button:disabled,

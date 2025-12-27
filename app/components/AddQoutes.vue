@@ -301,4 +301,10 @@ const handleConfirmSave = async () => {
     box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.3) !important;
     transform: scale(1.05);
 }
+
+@media (max-width: 767px) {
+    button {
+        width: 100%;
+    }
+}
 </style>
