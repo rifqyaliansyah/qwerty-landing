@@ -798,6 +798,11 @@ onUnmounted(() => {
         width: 100%;
     }
 
+    .form-group input,
+    .form-group textarea {
+        max-width: 100vw;
+    }
+
     .skeleton-button-inline {
         width: 100%;
         display: block;
