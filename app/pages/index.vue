@@ -1,7 +1,7 @@
 <template>
   <Navbar />
-  <PopularQoutes />
-  <CategoryQoutes />
+  <!-- <PopularQoutes /> -->
+  <!-- <CategoryQoutes /> -->
   <ExploreQoutes />
   <Footer />
 </template>
