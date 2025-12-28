@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useQuoteStore } from './qoutes'
 
 export const useAuthStore = defineStore('auth', () => {
     const config = useRuntimeConfig()
@@ -297,6 +298,12 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = null
         token.value = null
         clearStorage()
+
+        if (import.meta.client) {
+            const quoteStore = useQuoteStore()
+            quoteStore.resetQuote()
+        }
+
         router.push('/auth/login')
     }
 
