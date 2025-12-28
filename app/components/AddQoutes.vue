@@ -263,35 +263,35 @@ onUnmounted(() => {
                     <div class="margin-top-large margin-right-small">
                         <div class="skeleton skeleton-label"></div>
                         <div class="margin-top-small">
-                            <div class="skeleton skeleton-button-inline"></div>
-                            <div class="skeleton skeleton-button-inline"></div>
-                            <div class="skeleton skeleton-button-inline"></div>
-                            <div class="skeleton skeleton-button-inline"></div>
-                            <div class="skeleton skeleton-button-inline"></div>
-                            <div class="skeleton skeleton-button-inline"></div>
+                            <div class="skeleton skeleton-button-block"></div>
+                            <div class="skeleton skeleton-button-block"></div>
+                            <div class="skeleton skeleton-button-block"></div>
+                            <div class="skeleton skeleton-button-block"></div>
+                            <div class="skeleton skeleton-button-block"></div>
+                            <div class="skeleton skeleton-button-block"></div>
                         </div>
                     </div>
 
                     <div class="margin-top-large margin-right-small">
                         <div class="skeleton skeleton-label"></div>
                         <div class="margin-top-small">
-                            <div class="skeleton skeleton-button-inline"></div>
-                            <div class="skeleton skeleton-button-inline"></div>
-                            <div class="skeleton skeleton-button-inline"></div>
-                            <div class="skeleton skeleton-button-inline"></div>
-                            <div class="skeleton skeleton-button-inline"></div>
-                            <div class="skeleton skeleton-button-inline"></div>
+                            <div class="skeleton skeleton-button-block"></div>
+                            <div class="skeleton skeleton-button-block"></div>
+                            <div class="skeleton skeleton-button-block"></div>
+                            <div class="skeleton skeleton-button-block"></div>
+                            <div class="skeleton skeleton-button-block"></div>
+                            <div class="skeleton skeleton-button-block"></div>
                         </div>
                     </div>
 
                     <div class="margin-top-large margin-right-small">
                         <div class="skeleton skeleton-label"></div>
                         <div class="margin-top-small">
-                            <div class="skeleton skeleton-button-inline"></div>
-                            <div class="skeleton skeleton-button-inline"></div>
-                            <div class="skeleton skeleton-button-inline"></div>
-                            <div class="skeleton skeleton-button-inline"></div>
-                            <div class="skeleton skeleton-button-inline"></div>
+                            <div class="skeleton skeleton-button-block"></div>
+                            <div class="skeleton skeleton-button-block"></div>
+                            <div class="skeleton skeleton-button-block"></div>
+                            <div class="skeleton skeleton-button-block"></div>
+                            <div class="skeleton skeleton-button-block"></div>
                         </div>
                     </div>
 
@@ -630,11 +630,9 @@ onUnmounted(() => {
     margin-bottom: 0.5rem;
 }
 
-.skeleton-button-inline {
-    display: inline-block;
+.skeleton-button-block {
     height: 40px;
-    width: calc(16.666% - 0.5rem);
-    margin-right: 0.5rem;
+    width: 100%;
     margin-bottom: 0.5rem;
 }
 
@@ -800,11 +798,6 @@ onUnmounted(() => {
 @media (max-width: 767px) {
     button {
         width: 100%;
-    }
-
-    .skeleton-button-inline {
-        width: 100%;
-        display: block;
     }
 
     .card-title,
