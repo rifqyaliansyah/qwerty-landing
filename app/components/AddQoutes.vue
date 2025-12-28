@@ -25,7 +25,7 @@ const isLoadingPost = ref(false)
 // Mini player states
 const isFloating = ref(false)
 const isDragging = ref(false)
-const miniPlayerPosition = ref({ x: 20, y: 20 })
+const miniPlayerPosition = ref({ x: 20, y: 77 })
 const dragStart = ref({ x: 0, y: 0 })
 const previewRef = ref(null)
 const previewOffset = ref(0)
