@@ -281,4 +281,8 @@ onMounted(async () => {
     height: 20px;
     width: 50px;
 }
+
+.modal {
+    z-index: 9999;
+}
 </style>
