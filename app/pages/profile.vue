@@ -7,4 +7,5 @@ definePageMeta({
 <template>
     <Navbar />
     <Profile />
+    <Footer />
 </template>

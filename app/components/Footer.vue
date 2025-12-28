@@ -1,5 +1,5 @@
 <template>
-    <footer class="container margin-top-medium padding-large text-center">
+    <footer class="container padding-top-medium padding-bottom-medium text-center">
         <p class="margin-bottom-small">
             <small>
                 © 2025 Kata-Ku. All rights reserved.
