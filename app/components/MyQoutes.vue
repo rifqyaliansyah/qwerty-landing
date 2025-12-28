@@ -110,7 +110,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="container padding-top-large padding-bottom-large">
+    <div class="container padding-top-large padding-bottom-none">
         <h3 class="padding-top-medium margin-bottom-none">Jejak Kata</h3>
         <p class="padding-top-none margin-top-none">Setiap kutipan menyimpan cerita yang pernah kamu tuliskan.</p>
 

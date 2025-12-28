@@ -45,6 +45,13 @@
                         {{ authStore.loading ? 'Loading...' : 'Login' }}
                     </button>
                 </form>
+                <footer class="text-center" style="margin-top: 1rem;">
+                    <p>
+                        <small>
+                            © 2025 Kata-Ku. All rights reserved.
+                        </small>
+                    </p>
+                </footer>
             </div>
         </div>
     </div>

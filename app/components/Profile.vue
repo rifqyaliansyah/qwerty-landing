@@ -2,7 +2,7 @@
     <ClientOnly>
         <div class="container">
             <div class="row">
-                <div class="sm-12 md-6 profile-center padding-bottom-large">
+                <div class="sm-12 md-6 profile-center padding-bottom-none">
                     <div class="profile-header">
                         <img :src="authStore.user?.avatar_url" alt="Profile" class="profile-image">
                         <h3>{{ authStore.user?.username }}'s Profile</h3>
