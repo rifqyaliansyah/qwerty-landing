@@ -401,6 +401,10 @@ onMounted(async () => {
     width: 50px;
 }
 
+.modal {
+    z-index: 9999;
+}
+
 @media (max-width: 520px) {
     .menu-item {
         margin: 0;

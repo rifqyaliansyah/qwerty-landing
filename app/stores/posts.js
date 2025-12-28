@@ -5,9 +5,11 @@ export const usePostsStore = defineStore('posts', {
     state: () => ({
         posts: [],
         myPosts: [],
+        mostLikedPosts: [],
         currentPost: null,
         pagination: null,
         myPostsPagination: null,
+        mostLikedPagination: null,
         isLoading: false,
         error: null
     }),
@@ -24,11 +26,7 @@ export const usePostsStore = defineStore('posts', {
                 const headers = {}
                 if (authStore.token) {
                     headers['Authorization'] = `Bearer ${authStore.token}`
-                    console.log('Fetching posts with token:', authStore.token.substring(0, 20) + '...') // Debug
-                } else {
-                    console.log('Fetching posts without token') // Debug
                 }
-
                 const response = await $fetch(`/posts?page=${page}&limit=${limit}`, {
                     baseURL: config.public.apiBaseUrl,
                     method: 'GET',
@@ -36,7 +34,6 @@ export const usePostsStore = defineStore('posts', {
                 })
 
                 if (response.success) {
-                    console.log('Posts received:', response.data.posts) // Debug - cek is_liked_by_user
                     if (page === 1) {
                         this.posts = response.data.posts
                     } else {
@@ -52,6 +49,43 @@ export const usePostsStore = defineStore('posts', {
                 this.isLoading = false
             }
         },
+
+        async fetchMostLikedPosts(page = 1, limit = 4) {
+            this.isLoading = page === 1
+            this.error = null
+
+            try {
+                const config = useRuntimeConfig()
+                const authStore = useAuthStore()
+
+                const headers = {}
+                if (authStore.token) {
+                    headers['Authorization'] = `Bearer ${authStore.token}`
+                }
+
+                const response = await $fetch(`/posts/most-liked?page=${page}&limit=${limit}`, {
+                    baseURL: config.public.apiBaseUrl,
+                    method: 'GET',
+                    headers
+                })
+
+                if (response.success) {
+                    if (page === 1) {
+                        this.mostLikedPosts = response.data.posts
+                    } else {
+                        this.mostLikedPosts = [...this.mostLikedPosts, ...response.data.posts]
+                    }
+                    this.mostLikedPagination = response.data.pagination
+                    return response.data
+                }
+            } catch (error) {
+                this.error = error.message
+                throw error
+            } finally {
+                this.isLoading = false
+            }
+        },
+
         async fetchMyPosts(page = 1, limit = 4) {
             this.isLoading = page === 1
             this.error = null
@@ -190,6 +224,12 @@ export const usePostsStore = defineStore('posts', {
                         this.myPosts[myPostIndex] = updatedPost
                     }
 
+                    // Update in mostLikedPosts array
+                    const mostLikedIndex = this.mostLikedPosts.findIndex(p => p.slug === slug)
+                    if (mostLikedIndex !== -1) {
+                        this.mostLikedPosts[mostLikedIndex] = updatedPost
+                    }
+
                     this.currentPost = updatedPost
                     return updatedPost
                 }
@@ -226,6 +266,8 @@ export const usePostsStore = defineStore('posts', {
                     this.posts = this.posts.filter(post => post.slug !== slug)
                     // Remove from myPosts array
                     this.myPosts = this.myPosts.filter(post => post.slug !== slug)
+                    // Remove from mostLikedPosts array
+                    this.mostLikedPosts = this.mostLikedPosts.filter(post => post.slug !== slug)
                     return response
                 }
             } catch (error) {
@@ -270,6 +312,13 @@ export const usePostsStore = defineStore('posts', {
                     if (myPostIndex !== -1) {
                         this.myPosts[myPostIndex].is_liked_by_user = is_liked
                         this.myPosts[myPostIndex].likes_count = likes_count
+                    }
+
+                    // Update di mostLikedPosts array
+                    const mostLikedIndex = this.mostLikedPosts.findIndex(p => p.slug === slug)
+                    if (mostLikedIndex !== -1) {
+                        this.mostLikedPosts[mostLikedIndex].is_liked_by_user = is_liked
+                        this.mostLikedPosts[mostLikedIndex].likes_count = likes_count
                     }
 
                     // Update currentPost jika ada

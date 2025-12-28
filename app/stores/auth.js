@@ -176,7 +176,7 @@ export const useAuthStore = defineStore('auth', () => {
             if (response.success) {
                 user.value = response.data.user
                 saveToStorage()
-                successMessage.value = 'Profile berhasil diupdate!'
+                successMessage.value = response.message || 'Profile berhasil diupdate!'
 
                 setTimeout(() => {
                     successMessage.value = ''
@@ -197,6 +197,44 @@ export const useAuthStore = defineStore('auth', () => {
             loading.value = false
         }
     }
+
+    // const updatePassword = async (formData) => {
+    //     loading.value = true
+    //     errors.value = []
+    //     successMessage.value = ''
+
+    //     try {
+    //         const response = await $fetch('/auth/password', {
+    //             method: 'PUT',
+    //             baseURL: config.public.apiBaseUrl,
+    //             headers: {
+    //                 'Authorization': `Bearer ${token.value}`
+    //             },
+    //             body: formData
+    //         })
+
+    //         if (response.success) {
+    //             successMessage.value = 'Password berhasil diubah!'
+
+    //             setTimeout(() => {
+    //                 successMessage.value = ''
+    //             }, 3000)
+    //         }
+
+    //         return response
+    //     } catch (e) {
+    //         if (e.data && e.data.errors) {
+    //             errors.value = e.data.errors.map(err => err.message)
+    //         } else if (e.data && e.data.message) {
+    //             errors.value = [e.data.message]
+    //         } else {
+    //             errors.value = ['Terjadi kesalahan saat update password']
+    //         }
+    //         throw e
+    //     } finally {
+    //         loading.value = false
+    //     }
+    // }
 
     const uploadAvatar = async (file) => {
         loading.value = true
@@ -270,9 +308,6 @@ export const useAuthStore = defineStore('auth', () => {
         successMessage.value = ''
     }
 
-    // Load data dari localStorage saat store pertama kali dibuat
-    // loadFromStorage()
-
     return {
         user,
         token,
@@ -286,6 +321,7 @@ export const useAuthStore = defineStore('auth', () => {
         logout,
         fetchProfile,
         updateProfile,
+        updatePassword,
         uploadAvatar,
         checkAuth,
         clearErrors,

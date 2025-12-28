@@ -25,7 +25,7 @@ const isLoadingPost = ref(false)
 // Mini player states
 const isFloating = ref(false)
 const isDragging = ref(false)
-const miniPlayerPosition = ref({ x: 20, y: 20 })
+const miniPlayerPosition = ref({ x: 20, y: 77 })
 const dragStart = ref({ x: 0, y: 0 })
 const previewRef = ref(null)
 const previewOffset = ref(0)
@@ -791,6 +791,10 @@ onUnmounted(() => {
 .mini-player-leave-to {
     opacity: 0;
     transform: scale(0.8) translateY(-20px);
+}
+
+.modal {
+    z-index: 9999;
 }
 
 @media (max-width: 767px) {

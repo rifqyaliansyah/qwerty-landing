@@ -57,6 +57,20 @@
                         </div>
                     </div>
 
+                    <!-- Modal Success -->
+                    <input class="modal-state" id="modal-success" type="checkbox" :checked="showSuccessModal"
+                        @change="showSuccessModal = $event.target.checked">
+                    <div class="modal">
+                        <label class="modal-bg" @click="showSuccessModal = false"></label>
+                        <div class="modal-body">
+                            <label class="btn-close" @click="showSuccessModal = false">X</label>
+                            <h4 class="modal-title">Berhasil!</h4>
+                            <h5 class="modal-subtitle">Update berhasil</h5>
+                            <p class="modal-text">{{ successMessage }}</p>
+                            <button class="btn-secondary" @click="showSuccessModal = false">OK</button>
+                        </div>
+                    </div>
+
                     <form @submit.prevent="openConfirmModal">
                         <div class="form-group">
                             <label for="paperInputs1">Username</label>
@@ -70,19 +84,30 @@
                                 disabled>
                         </div>
 
+                        <div class="form-group">
+                            <label for="paperInputs3">Old Password</label>
+                            <input v-model="form.currentPassword" type="password" placeholder="Masukkan password lama"
+                                id="paperInputs3" :disabled="authStore.loading">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="paperInputs4">New Password</label>
+                            <input v-model="form.newPassword" type="password" placeholder="Masukkan password baru"
+                                id="paperInputs4" :disabled="authStore.loading">
+                        </div>
+
                         <!-- <div class="form-group">
-                            <label for="paperInputs3">Update Profile Image</label>
-                            <input type="file" id="paperInputs3" @change="handleFileChange" accept="image/*"
+                            <label for="paperInputs5">Update Profile Image</label>
+                            <input type="file" id="paperInputs5" @change="handleFileChange" accept="image/*"
                                 :disabled="authStore.loading">
                         </div> -->
 
-                            <button type="submit" class="btn-secondary" :disabled="authStore.loading || !hasChanges">
-                                {{ authStore.loading ? 'Loading...' : 'Update' }}
-                            </button>
-                            <button type="button" class="btn-danger" @click="openLogoutModal"
-                                :disabled="authStore.loading">
-                                Logout
-                            </button>
+                        <button type="submit" class="btn-secondary" :disabled="authStore.loading || !hasChanges">
+                            {{ authStore.loading ? 'Loading...' : 'Update' }}
+                        </button>
+                        <button type="button" class="btn-danger" @click="openLogoutModal" :disabled="authStore.loading">
+                            Logout
+                        </button>
                     </form>
                 </div>
             </div>
@@ -107,19 +132,24 @@ const authStore = useAuthStore()
 
 const form = reactive({
     username: '',
-    email: ''
+    email: '',
+    currentPassword: '',
+    newPassword: ''
 })
 
 const selectedFile = ref(null)
 const showConfirmModal = ref(false)
 const showLogoutModal = ref(false)
 const showErrorModal = ref(false)
+const showSuccessModal = ref(false)
+const successMessage = ref('')
 
 // Computed untuk cek ada perubahan atau tidak
 const hasChanges = computed(() => {
     const usernameChanged = form.username !== authStore.user?.username
     const fileSelected = selectedFile.value !== null
-    return usernameChanged || fileSelected
+    const passwordFilled = form.currentPassword && form.newPassword
+    return usernameChanged || fileSelected || passwordFilled
 })
 
 const syncFormData = () => {
@@ -137,6 +167,7 @@ onMounted(() => {
 // Watch untuk errors
 watch(() => authStore.errors.length, (newVal) => {
     if (newVal > 0) {
+        showSuccessModal.value = false
         showErrorModal.value = true
     }
 })
@@ -145,6 +176,13 @@ watch(() => authStore.errors.length, (newVal) => {
 watch(showErrorModal, (newVal) => {
     if (!newVal) {
         authStore.clearErrors()
+    }
+})
+
+// Watch ketika modal success ditutup, clear message
+watch(showSuccessModal, (newVal) => {
+    if (!newVal) {
+        successMessage.value = ''
     }
 })
 
@@ -182,19 +220,47 @@ const handleConfirmUpdate = async () => {
     showConfirmModal.value = false
 
     authStore.clearErrors()
+    successMessage.value = ''
 
     try {
+        const payload = {}
+
+        // Tambahkan username jika berubah
         if (form.username !== authStore.user.username) {
-            await authStore.updateProfile({ username: form.username })
+            payload.username = form.username
         }
 
+        // Tambahkan password jika diisi
+        if (form.currentPassword && form.newPassword) {
+            payload.current_password = form.currentPassword
+            payload.new_password = form.newPassword
+        }
+
+        // Tambahkan avatar jika ada file
         if (selectedFile.value) {
+            // Upload avatar masih terpisah karena pakai FormData
             await authStore.uploadAvatar(selectedFile.value)
             selectedFile.value = null
-            document.getElementById('paperInputs3').value = ''
+            const fileInput = document.getElementById('paperInputs5')
+            if (fileInput) fileInput.value = ''
+        }
+
+        // Kirim update profile & password sekaligus
+        if (Object.keys(payload).length > 0) {
+            const response = await authStore.updateProfile(payload)
+
+            // Clear password fields jika berhasil
+            if (payload.current_password) {
+                form.currentPassword = ''
+                form.newPassword = ''
+            }
+
+            successMessage.value = response.message
+            showSuccessModal.value = true
         }
     } catch (e) {
         console.error('Update error:', e)
+        // Error modal akan muncul otomatis via watch()
     }
 }
 
@@ -261,6 +327,10 @@ button:disabled {
 
 .modal-text {
     text-align: left;
+}
+
+.modal {
+    z-index: 9999;
 }
 
 /* Responsive untuk mobile */
