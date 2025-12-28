@@ -793,6 +793,10 @@ onUnmounted(() => {
     transform: scale(0.8) translateY(-20px);
 }
 
+.modal {
+    z-index: 9999;
+}
+
 @media (max-width: 767px) {
     button {
         width: 100%;
