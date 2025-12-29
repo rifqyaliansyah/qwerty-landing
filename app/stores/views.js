@@ -5,10 +5,36 @@ export const useViewsStore = defineStore('views', {
         stats: null,
         isLoading: false,
         error: null,
-        lastTrackedUrl: null
+        lastTrackedUrl: null,
+        sessionId: null
     }),
 
     actions: {
+        /**
+         * Initialize session ID
+         */
+        initSession() {
+            if (process.client) {
+                // Check if session exists in sessionStorage
+                let sessionId = sessionStorage.getItem('analytics_session')
+
+                if (!sessionId) {
+                    // Generate new session ID
+                    sessionId = this.generateSessionId()
+                    sessionStorage.setItem('analytics_session', sessionId)
+                }
+
+                this.sessionId = sessionId
+            }
+        },
+
+        /**
+         * Generate random session ID
+         */
+        generateSessionId() {
+            return 'sess_' + Date.now() + '_' + Math.random().toString(36).substring(2, 15)
+        },
+
         /**
          * Track page view
          * @param {string} url - URL path yang dikunjungi
@@ -19,6 +45,11 @@ export const useViewsStore = defineStore('views', {
                 return
             }
 
+            // Initialize session if not exists
+            if (!this.sessionId) {
+                this.initSession()
+            }
+
             try {
                 const config = useRuntimeConfig()
                 const apiUrl = config.public.apiBaseUrl
@@ -26,9 +57,12 @@ export const useViewsStore = defineStore('views', {
                 const response = await fetch(`${apiUrl}/view`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ url })
+                    body: JSON.stringify({
+                        url,
+                        sessionId: this.sessionId
+                    })
                 })
 
                 const data = await response.json()
@@ -43,12 +77,11 @@ export const useViewsStore = defineStore('views', {
             } catch (err) {
                 console.error('Error tracking view:', err)
                 this.error = err.message
-                // Don't throw error, just log it (tracking shouldn't break the app)
             }
         },
 
         /**
-         * Get comprehensive stats (untuk Discord)
+         * Get stats dengan options
          */
         async fetchStats(options = {}) {
             this.isLoading = true
@@ -58,7 +91,6 @@ export const useViewsStore = defineStore('views', {
                 const config = useRuntimeConfig()
                 const apiUrl = config.public.apiBaseUrl
 
-                // Build query params
                 const params = new URLSearchParams()
                 if (options.type) params.append('type', options.type)
                 if (options.period) params.append('period', options.period)
@@ -93,16 +125,16 @@ export const useViewsStore = defineStore('views', {
         },
 
         /**
-         * Get total views only
+         * Get total views & unique visitors
          */
         async getTotalViews() {
             return await this.fetchStats({ type: 'total' })
         },
 
         /**
-         * Get today's views
+         * Get today's stats
          */
-        async getTodayViews() {
+        async getTodayStats() {
             return await this.fetchStats({ type: 'today' })
         },
 
@@ -118,6 +150,13 @@ export const useViewsStore = defineStore('views', {
          */
         async getViewsByPeriod(days = 7) {
             return await this.fetchStats({ type: 'period', period: days })
+        },
+
+        /**
+         * Get comprehensive stats
+         */
+        async getComprehensiveStats() {
+            return await this.fetchStats({ type: 'comprehensive' })
         },
 
         /**
@@ -139,7 +178,8 @@ export const useViewsStore = defineStore('views', {
 
             return {
                 total: state.stats.total_views || 0,
-                today: state.stats.today_views || 0,
+                unique: state.stats.unique_visitors || 0,
+                today: state.stats.today_stats || {},
                 topPages: state.stats.top_pages || [],
                 weeklyTrend: state.stats.weekly_trend || []
             }
